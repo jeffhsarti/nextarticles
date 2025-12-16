@@ -21,18 +21,14 @@ type PriceInfo = {
 };
 
 export default function PriceTicker() {
-  const [prices, setPrices] = useState<PriceInfo[]>([
-    { name: "BTC", value: "$0", change: "0%" },
-    { name: "ETH", value: "$0", change: "0%" },
-    { name: "SOL", value: "$0", change: "0%" },
-    { name: "BNB", value: "$0", change: "0%" },
-    { name: "XRP", value: "$0", change: "0%" },
-    { name: "ADA", value: "$0", change: "0%" },
-    { name: "DOGE", value: "$0", change: "0%" },
-    { name: "AVAX", value: "$0", change: "0%" },
-    { name: "MATIC", value: "$0", change: "0%" },
-    { name: "DOT", value: "$0", change: "0%" },
-  ]);
+  const [prices, setPrices] = useState<PriceInfo[]>(
+    symbols.map((s) => ({
+      name: s.name,
+      value: "$0",
+      change: "0%",
+    }))
+  );
+  const [paused, setPaused] = useState(false);
   const prevPrices = useRef<{ [key: string]: number }>({});
 
   useEffect(() => {
@@ -74,18 +70,27 @@ export default function PriceTicker() {
     return () => ws.close();
   }, []);
 
+  // Duplicate the ticker row for seamless looping
+  const tickerItems = [...prices, ...prices];
+  const itemWidthRem = 12; // w-48 = 12rem
+  const totalWidthRem = tickerItems.length * itemWidthRem;
+
   return (
     <div className="w-full overflow-hidden bg-black text-white border-b border-gray-800">
       <div
-        className="flex gap-4 animate-marquee"
+        className={`flex gap-4 py-2 whitespace-nowrap animate-marquee ${
+          paused ? "animate-marquee-paused" : ""
+        }`}
         style={{
-          width: `${prices.length * 12}rem`, // 12rem per item (w-48)
+          width: `${totalWidthRem}rem`,
         }}
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
       >
-        {prices.map((item, idx) => (
+        {tickerItems.map((item, idx) => (
           <div
             key={idx}
-            className="w-48 min-w-48 max-w-48 text-center flex-shrink-0"
+            className="w-48 min-w-48 max-w-48 text-center shrink-0"
           >
             <strong>{item.name}</strong>: {item.value}{" "}
             <span
@@ -100,7 +105,10 @@ export default function PriceTicker() {
       </div>
       <style jsx>{`
         .animate-marquee {
-          animation: marquee 40s linear infinite;
+          animation: marquee 30s linear infinite;
+        }
+        .animate-marquee-paused {
+          animation-play-state: paused;
         }
         @keyframes marquee {
           0% {
