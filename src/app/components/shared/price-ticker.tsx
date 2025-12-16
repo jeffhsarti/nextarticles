@@ -76,9 +76,17 @@ export default function PriceTicker() {
 
   return (
     <div className="w-full overflow-hidden bg-black text-white border-b border-gray-800">
-      <div className="flex animate-marquee whitespace-nowrap py-2">
+      <div
+        className="flex gap-4 animate-marquee"
+        style={{
+          width: `${prices.length * 12}rem`, // 12rem per item (w-48)
+        }}
+      >
         {prices.map((item, idx) => (
-          <span key={idx} className="mr-8">
+          <div
+            key={idx}
+            className="w-48 min-w-48 max-w-48 text-center flex-shrink-0"
+          >
             <strong>{item.name}</strong>: {item.value}{" "}
             <span
               className={
@@ -87,19 +95,19 @@ export default function PriceTicker() {
             >
               {item.change}
             </span>
-          </span>
+          </div>
         ))}
       </div>
       <style jsx>{`
         .animate-marquee {
-          animation: marquee 50s linear infinite;
+          animation: marquee 40s linear infinite;
         }
         @keyframes marquee {
           0% {
-            transform: translateX(100%);
+            transform: translateX(0%);
           }
           100% {
-            transform: translateX(-100%);
+            transform: translateX(-50%);
           }
         }
       `}</style>
